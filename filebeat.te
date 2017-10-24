@@ -1,0 +1,58 @@
+policy_module(filebeat, 1.0)
+
+########################################
+#
+# Declarations
+#
+
+#permissive filebeat_t;
+
+type filebeat_t;
+type filebeat_exec_t;
+init_daemon_domain(filebeat_t, filebeat_exec_t)
+
+type filebeat_config_t;
+files_config_file(filebeat_config_t)
+
+type filebeat_initrc_exec_t;
+init_script_file(filebeat_initrc_exec_t)
+
+type filebeat_log_t;
+logging_log_file(filebeat_log_t)
+
+type filebeat_unit_t;
+systemd_unit_file(filebeat_unit_t)
+
+type filebeat_var_lib_t;
+files_type(filebeat_var_lib_t)
+
+
+########################################
+#
+# Common filebeat domain policy
+#
+
+allow filebeat_t self:capability2 block_suspend;
+allow filebeat_t self:netlink_route_socket { bind create getattr nlmsg_read read write };
+allow filebeat_t self:tcp_socket { create_socket_perms };
+allow filebeat_t self:udp_socket { create_socket_perms };
+
+allow filebeat_t filebeat_config_t:dir list_dir_perms;
+read_files_pattern(filebeat_t, filebeat_config_t, filebeat_config_t)
+
+manage_files_pattern(filebeat_t, filebeat_log_t, filebeat_log_t)
+manage_dirs_pattern(filebeat_t, filebeat_log_t, filebeat_log_t)
+logging_log_filetrans(filebeat_t, filebeat_log_t, dir)
+
+manage_files_pattern(filebeat_t, filebeat_var_lib_t, filebeat_var_lib_t)
+manage_dirs_pattern(filebeat_t, filebeat_var_lib_t, filebeat_var_lib_t)
+files_var_lib_filetrans(filebeat_t, filebeat_var_lib_t, dir)
+
+kernel_read_net_sysctls(filebeat_t)
+
+corenet_tcp_bind_generic_node(filebeat_t)
+corenet_tcp_connect_unreserved_ports(filebeat_t)
+
+sysnet_read_config(filebeat_t)
+
+miscfiles_read_generic_certs(filebeat_t)

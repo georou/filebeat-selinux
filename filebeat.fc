@@ -1,0 +1,13 @@
+/etc/init\.d/filebeat				--      gen_context(system_u:object_r:filebeat_initrc_exec_t,s0)
+/etc/rc\.d/init\.d/filebeat                     --      gen_context(system_u:object_r:filebeat_initrc_exec_t,s0)
+/etc/filebeat(/.*)?					gen_context(system_u:object_r:filebeat_config_t,s0)
+
+/usr/bin/filebeat\.sh                           --      gen_context(system_u:object_r:filebeat_exec_t,s0)
+/usr/share/filebeat/bin/filebeat                --      gen_context(system_u:object_r:filebeat_exec_t,s0)
+
+/etc/systemd/system/filebeat.*			--      gen_context(system_u:object_r:filebeat_unit_t,s0)
+/usr/lib/systemd/system/filebeat.*		--     	gen_context(system_u:object_r:filebeat_unit_t,s0)
+
+/var/lib/filebeat(/.*)?                                 gen_context(system_u:object_r:filebeat_var_lib_t,s0)
+
+/var/log/filebeat(/.*)?					gen_context(system_u:object_r:filebeat_log_t,s0)
