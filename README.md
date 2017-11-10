@@ -6,6 +6,7 @@ This policy module is created as a baseline. It aim's to provide filebeat with t
 
 !! You will need to add the specific permissions to allow filebeat to read logs that you want !!
 
+I have added a boolean(filebeat_can_read_all_system_logs) you can use that might make it simpler but bear in mind this is a blanket allow to read all logs.
 
 ## Installation
 ```sh

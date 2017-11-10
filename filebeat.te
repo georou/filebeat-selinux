@@ -1,4 +1,4 @@
-policy_module(filebeat, 1.0)
+policy_module(filebeat, 1.1)
 
 ########################################
 #
@@ -7,9 +7,17 @@ policy_module(filebeat, 1.0)
 
 #permissive filebeat_t;
 
+## <desc>
+## <p>
+## Allow filebeat to read all system logs in /var/log 
+## </p>
+## </desc>
+gen_tunable(filebeat_can_read_all_system_logs, false)
+
 type filebeat_t;
 type filebeat_exec_t;
 init_daemon_domain(filebeat_t, filebeat_exec_t)
+role system_r types filebeat_t;
 
 type filebeat_config_t;
 files_config_file(filebeat_config_t)
@@ -56,3 +64,7 @@ corenet_tcp_connect_unreserved_ports(filebeat_t)
 sysnet_read_config(filebeat_t)
 
 miscfiles_read_generic_certs(filebeat_t)
+
+tunable_policy(`filebeat_can_read_all_system_logs',`
+	logging_read_all_logs(ossec_filebeat_t)
+')
