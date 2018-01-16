@@ -50,11 +50,11 @@ read_files_pattern(filebeat_t, filebeat_config_t, filebeat_config_t)
 
 manage_files_pattern(filebeat_t, filebeat_log_t, filebeat_log_t)
 manage_dirs_pattern(filebeat_t, filebeat_log_t, filebeat_log_t)
-logging_log_filetrans(filebeat_t, filebeat_log_t, dir)
+logging_log_filetrans(filebeat_t, filebeat_log_t, { dir file })
 
 manage_files_pattern(filebeat_t, filebeat_var_lib_t, filebeat_var_lib_t)
 manage_dirs_pattern(filebeat_t, filebeat_var_lib_t, filebeat_var_lib_t)
-files_var_lib_filetrans(filebeat_t, filebeat_var_lib_t, dir)
+files_var_lib_filetrans(filebeat_t, filebeat_var_lib_t, { dir file })
 
 kernel_read_net_sysctls(filebeat_t)
 
@@ -66,5 +66,5 @@ sysnet_read_config(filebeat_t)
 miscfiles_read_generic_certs(filebeat_t)
 
 tunable_policy(`filebeat_can_read_all_system_logs',`
-	logging_read_all_logs(ossec_filebeat_t)
+	logging_read_all_logs(filebeat_t)
 ')
