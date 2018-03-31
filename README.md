@@ -2,16 +2,29 @@
 
 Filebeat SELinux policy module for CentOS 7 & RHEL 7 systems with systemd
 
-This policy module is created as a baseline. It aim's to provide filebeat with the necessary allow rules to function.
+This policy module is created as a baseline. It aims to provide filebeat with the necessary allow rules to function.
 
 !! You will need to add the specific permissions to allow filebeat to read logs that you want !!
+Example, if you want to read appache/nginx logs, you will need to add `apache_read_log(filebeat_t)`.
 
-I have added a boolean(filebeat_can_read_all_system_logs) you can use that might make it simpler but bear in mind this is a blanket allow to read all logs.
+I have added a Boolean (filebeat_can_read_all_system_logs) you can use that might make it simpler. But keep in mind, that this is a blanket allow to read all logs.
+
+### "I'm getting dac_override and/or dac_read_search AVC denials"
+If you're reading nginx/apache logs or any other log file that does not allow root (or if using separate a filebeat UID) to read the log, this will trigger a deny because in SELinux root doesn't have access anywhere.
+You have a few options;
+* Add root/filebeat as group with appropriate file mode bits
+* Use ACL's to allow root/filebeat
+* Allow everyone to read permission bit 644 <- least favourable option!
+*Don't forgot to check directories for appropriate permissions too!*
+
 
 ## Installation
 ```sh
 # Clone the repo
 git clone https://github.com/georou/filebeat-selinux.git
+
+# Optional - Copy relevant .if interface file to /usr/share/selinux/devel/include to expose them when building and for future modules
+install -Dp -m 0644 -o root -g root filebeat.if /usr/share/selinux/devel/include/myapplications/filebeat.if
 
 # Compile the selinux module (see below)
 
@@ -19,16 +32,16 @@ git clone https://github.com/georou/filebeat-selinux.git
 semodule -i filebeat.pp
 
 # Restore all the correct context labels
-restorecon -v /usr/lib/systemd/system/filebeat.service
-restorecon -Rv /var/lib/filebeat
-restorecon -v /etc/rc.d/init.d/filebeat
-restorecon -Rv /var/log/filebeat
-restorecon -v /usr/bin/filebeat.sh
-restorecon -Rv /usr/share/filebeat
+restorecon -RvF /etc/filebeat \
+                /etc/init.d/filebeat \
+                /usr/lib/systemd/system/filebeat.service \
+                /usr/bin/filebeat.sh \
+                /usr/share/filebeat \
+                /var/lib/filebeat \
+                /var/log/filebeat
 
 # Start filebeat
-systemctl enable filebeat.service
-systemctl start filebeat.service
+systemctl enable --now filebeat.service
 
 # Ensure it's working
 ps -eZ | grep filebeat
